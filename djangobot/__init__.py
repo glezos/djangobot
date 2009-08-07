@@ -16,6 +16,7 @@ from twisted.python import log
 from django.conf import settings
 from django.utils.encoding import force_unicode
 
+from resources import replace_by_resource
 from logger import models
 
 activity_set = set()
@@ -198,12 +199,8 @@ class Message(object):
 
     def cmd_ticket(self, *tickets, **kwargs):
         in_channel = kwargs.get("in_channel", False)
-        if self.channel.name == "#django-hotclub":
-            base_url = "http://code.google.com/p/django-hotclub/issues/detail?id=%s"
-        else:
-            base_url = "http://code.djangoproject.com/ticket/%s"
         for ticket in tickets:
-            url = base_url % ticket
+            url = replace_by_resource(self.channel.name, ticket, 'ticket')
             if self.check_url(url):
                 if in_channel:
                     self.channel.msg(url)
@@ -214,12 +211,8 @@ class Message(object):
 
     def cmd_changeset(self, *changesets, **kwargs):
         in_channel = kwargs.get("in_channel", False)
-        if self.channel.name == "#django-hotclub":
-            base_url = "http://code.google.com/p/django-hotclub/source/detail?r=%s"
-        else:
-            base_url = "http://code.djangoproject.com/changeset/%s"
         for changeset in changesets:
-            url = base_url % changeset
+            url = replace_by_resource(self.channel.name, ticket, 'changeset')
             if self.check_url(url):
                 if in_channel:
                     self.channel.msg(url)
@@ -232,7 +225,7 @@ class Message(object):
     def cmd_who(self, *nicknames):
         for nickname in [n.strip() for n in nicknames]:
             try:
-                dp = "http://djangopeople.net/api/irc_lookup/%s/" % nickname
+                dp = replace_by_resource(self.channel.name, nickname, 'person')
                 u = urllib2.urlopen(dp)
             except urllib2.HTTPError:
                 self.user.msg("something went wrong!")
@@ -447,8 +440,8 @@ class DjangoPeopleMonitor(object):
     
     def send(self, user):
         try:
-            dp = "http://djangopeople.net/api/irc_spotted/%s/"
-            u = urllib2.urlopen(dp % user.nickname,
+            dp = replace_by_resource(self.channel.name, nickname, 'irc_spotted')
+            u = urllib2.urlopen(dp,
                     urllib.urlencode({"sekrit": settings.DJANGOPEOPLE_SEKRIT}))
         except (urllib2.HTTPError, urllib2.URLError):
             raise BadRequest
