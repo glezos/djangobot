@@ -28,13 +28,19 @@ RESOURCES['#django'] = BotResource(
     irc_spotted="http://djangopeople.net/api/irc_spotted/%s/",
 )
 
-RESOURCES['#django-hotclub'] = RESOURCES['#django']
-RESOURCES['#django-hotclub'].ticket = "http://code.google.com/p/django-hotclub/issues/detail?id=%s"
-RESOURCES['#django-hotclub'].changeset = "http://code.google.com/p/django-hotclub/source/detail?r=%s"
+RESOURCES['#django-hotclub'] = BotResource(
+    ticket="http://code.google.com/p/django-hotclub/issues/detail?id=%s",
+    changeset="http://code.google.com/p/django-hotclub/source/detail?r=%s",
+    person="http://djangopeople.net/api/irc_lookup/%s/",
+    irc_spotted="http://djangopeople.net/api/irc_spotted/%s/",
+)te
 
-RESOURCES['#transifex'] = RESOURCES['#django']
-RESOURCES['#transifex'].ticket = "code.transifex.org/ticket/%s"
-RESOURCES['#transifex'].changeset = "http://code.transifex.org/changeset/%s"
+RESOURCES['#django-hotclub'] = BotResource(
+    ticket="code.transifex.org/ticket/%s",
+    changeset="http://code.transifex.org/changeset/%s",
+    person="http://djangopeople.net/api/irc_lookup/%s/",
+    irc_spotted="http://djangopeople.net/api/irc_spotted/%s/",
+)
 
 ##
 
@@ -43,7 +49,7 @@ def replace_by_resource(self, context, text, resource_type):
     if context in RESOURCES.keys():
         base_url = RESOURCES.get(self.channel.name, resource_type)
         try:
-            return base_url % ticket
+            return base_url % text
         except TypeError:
             return
 
